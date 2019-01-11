@@ -1,0 +1,6 @@
+std_msgs/Float64 left_steer
+std_msgs/Float64 right_steer
+std_msgs/Float64 rear_left_vel
+std_msgs/Float64 rear_right_vel
+std_msgs/Float64 front_left_vel
+std_msgs/Float64 front_right_vel
