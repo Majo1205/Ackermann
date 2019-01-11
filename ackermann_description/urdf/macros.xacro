@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+
+<!-- HERE WE SPECIFY PARAMETERS AND MACROS IN XACRO FORM -->
+<robot>
+
+  <!-- intertial macros -->
+  <macro name="cylinder_inertia" params="m r h">
+    <inertia  ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
+      iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
+      izz="${m*r*r/2}"/>
+  </macro>
+
+  <macro name="box_inertia" params="m x y z">
+    <inertia  ixx="${m*(y*y+z*z)/12}" ixy = "0" ixz = "0"
+      iyy="${m*(x*x+z*z)/12}" iyz = "0"
+      izz="${m*(x*x+z*z)/12}"/>
+  </macro>
+
+  <macro name="sphere_inertia" params="m r">
+    <inertia  ixx="${2*m*r*r/5}" ixy = "0" ixz = "0"
+      iyy="${2*m*r*r/5}" iyz = "0"
+      izz="${2*m*r*r/5}"/>
+  </macro>
+
+  <macro name="suspension_inertia">
+    <inertial>
+      <mass value="2"/>
+      <inertia ixx="2" ixy="0" ixz="0" iyy="2" iyz="0" izz="2"/>
+    </inertial>
+  </macro>
+
+  <macro name="dummy_inertia">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </macro>
+
+  <!-- rear wheels macro (link,joint,transmission,dummy link, fixed joint) -->
+  <macro name="rear_wheel" params="lr tY">
+
+   <link name="rear_${lr}_wheel_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+      <geometry>
+        <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+      <geometry>
+        <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+      <mass value="${wheelMass}"/>
+      <cylinder_inertia m="${wheelMass}" r="${wheelRadius}" h="${wheelWidth}"/>
+    </inertial>
+   </link>
+
+
+   <joint name="rear_${lr}_wheel_joint" type="continuous">
+    <parent link="base_footprint"/>
+    <child link="rear_${lr}_wheel_link"/>
+    <origin xyz="${wheelPos-baseLength/2} ${tY*(wheelWidth/2+baseWidth/2+offset_wheels)} ${wheelRadius}" rpy="0 0 0" />
+    <axis xyz="0 1 0" rpy="0 0 0" />
+    <!-- <limit effort="${effortMax}" velocity="${velocityMax}"/> -->
+    <joint_properties damping="${wheelDamping}" friction="${wheelFriction}"/>
+   </joint>
+
+
+   <transmission name="rear_${lr}_wheel_trans">
+         <type>transmission_interface/SimpleTransmission</type>
+         <joint name="rear_${lr}_wheel_joint">
+           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+         </joint>
+         <actuator name="rear_${lr}_motor">
+           <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+           <mechanicalReduction>300</mechanicalReduction>
+         </actuator>
+   </transmission>
+
+   <!-- link attached to the wheels just to show rotation-->
+   <link name="rear_${lr}_rot_link">
+    <collision>
+      <origin xyz="0 0 0" rpy="0 ${PI/2} 0" />
+      <geometry>
+        <box size="${suspensionLength} ${suspensionWidth} ${suspensionHeight}"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 ${PI/2} 0" />
+      <geometry>
+        <box size="${suspensionLength} ${suspensionWidth} ${suspensionHeight}"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+
+    <dummy_inertia/>
+
+   </link>
+
+   <joint name="rear_${lr}_rot_joint" type="fixed">
+    <parent link="rear_${lr}_wheel_link"/>
+    <child link="rear_${lr}_rot_link"/>
+    <origin xyz="0 ${tY*wheelWidth/2} 0" rpy="0 0 0" />
+   </joint>
+
+  </macro>
+
+  <!-- front wheels macro (link,revolute joint,transmission, wheel link,continuous joint,transmission) -->
+  <macro name="front_wheel" params="lr tY">
+
+    <link name="front_${lr}_steering_link">
+     <collision>
+       <origin xyz="0 0 0" rpy="0 0 0" />
+       <geometry>
+          <box size="${suspensionLength} ${suspensionWidth} ${suspensionHeight}"/>
+       </geometry>
+     </collision>
+
+     <visual>
+       <origin xyz="0 0 0" rpy="0 0 0" />
+       <geometry>
+         <box size="${suspensionLength} ${suspensionWidth} ${suspensionHeight}"/>
+       </geometry>
+       <material name="red"/>
+     </visual>
+
+     <suspension_inertia/>
+
+    </link>
+
+    <joint name="front_${lr}_steering_joint" type="revolute">
+     <parent link="base_footprint"/>
+     <child link="front_${lr}_steering_link"/>
+     <origin xyz="${-wheelPos+baseLength/2} ${tY*(baseWidth/2+offset_wheels)} ${wheelRadius}" rpy="0 0 0" />
+     <axis xyz="0 0 1" rpy="0 0 0" />
+     <limit lower="${steerMin}" upper="${steerMax}" effort="${effortMax}" velocity="${velocityMax}"/>
+     <joint_properties damping="${steerDamping}" friction="${steerFriction}"/>
+    </joint>
+
+    <transmission name="front_${lr}_steering_trans">
+          <type>transmission_interface/SimpleTransmission</type>
+          <joint name="front_${lr}_steering_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+          </joint>
+          <actuator name="front_${lr}_steering_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>300</mechanicalReduction>
+          </actuator>
+    </transmission>
+
+    <link name="front_${lr}_wheel_link">
+     <collision>
+       <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+       <geometry>
+         <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+       </geometry>
+     </collision>
+
+     <visual>
+       <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+       <geometry>
+         <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+       </geometry>
+       <material name="black"/>
+     </visual>
+
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+       <mass value="${wheelMass}"/>
+       <cylinder_inertia m="${wheelMass}" r="${wheelRadius}" h="${wheelWidth}"/>
+     </inertial>
+    </link>
+
+    <joint name="front_${lr}_wheel_joint" type="continuous">
+     <parent link="front_${lr}_steering_link"/>
+     <child link="front_${lr}_wheel_link"/>
+     <origin xyz="0 ${tY*wheelWidth/2} 0" rpy="0 0 0" />
+     <axis xyz="0 1 0" rpy="0 0 0" />
+     <!-- <limit effort="${effortMax}" velocity="${velocityMax}"/> -->
+     <joint_properties damping="${wheelDamping}" friction="${wheelFriction}"/>
+    </joint>
+
+    <transmission name="front_${lr}_wheel_trans">
+          <type>transmission_interface/SimpleTransmission</type>
+          <joint name="front_${lr}_wheel_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+          </joint>
+          <actuator name="front_${lr}_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>300</mechanicalReduction>
+          </actuator>
+    </transmission>
+
+    <!-- link attached to the wheels just to show rotation-->
+    <link name="front_${lr}_rot_link">
+     <collision>
+       <origin xyz="0 0 0" rpy="0 ${PI/2} 0" />
+       <geometry>
+         <box size="${suspensionLength} ${suspensionWidth} ${suspensionHeight}"/>
+       </geometry>
+     </collision>
+
+     <visual>
+       <origin xyz="0 0 0" rpy="0 ${PI/2} 0" />
+       <geometry>
+         <box size="${suspensionLength} ${suspensionWidth} ${suspensionHeight}"/>
+       </geometry>
+       <material name="white"/>
+     </visual>
+
+     <dummy_inertia/>
+
+    </link>
+
+    <joint name="front_${lr}_rot_joint" type="fixed">
+     <parent link="front_${lr}_wheel_link"/>
+     <child link="front_${lr}_rot_link"/>
+     <origin xyz="0 ${tY*wheelWidth/2} 0" rpy="0 0 0" />
+    </joint>
+
+  </macro>
+
+</robot>

@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+
+<!-- Ackermann robot -->
+<robot name="ackermann" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find ackermann_description)/urdf/ackermann.gazebo" />
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find ackermann_description)/urdf/materials.xacro" />
+  <!-- Import macros -->
+  <xacro:include filename="$(find ackermann_description)/urdf/macros.xacro" />
+
+  <!-- Geometric constants -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+  <!-- to avoid collision (wheels are floating) (TO PUT SPRINGS AFTER) -->
+  <xacro:property name="offset_wheels" value="${wheelRadius+0.03}"/>
+  <!-- Robot specifics -->
+
+  <!-- base -->
+  <xacro:property name="baseMass" value="100" />
+  <xacro:property name="baseLength" value="1.2" />
+  <xacro:property name="baseWidth" value="0.4" />
+  <xacro:property name="baseHeight" value="0.1" />
+
+  <!-- axles -->
+  <xacro:property name="axleMass" value="5" />
+  <xacro:property name="axleRadius" value="0.03" /> <!-- radius of cylinders-->
+  <xacro:property name="axleLength" value="${baseWidth+2*(offset_wheels+wheelWidth/2)}" />
+  <xacro:property name="baseLength" value="1" />
+
+  <!-- suspension -->
+  <xacro:property name="suspensionMass" value="1" />
+  <xacro:property name="suspensionLength" value="0.04" />
+  <xacro:property name="suspensionWidth" value="0.01" />
+  <xacro:property name="suspensionHeight" value="${wheelRadius-0.03}" />
+
+  <!-- wheels -->
+  <xacro:property name="wheelMass" value="2.5" />
+  <xacro:property name="wheelRadius" value="0.15" />
+  <xacro:property name="wheelWidth" value="0.1" />
+  <xacro:property name="wheelPos" value="0.1" />
+
+  <!-- limits and parameters joints -->
+  <xacro:property name="steerMin" value="${-PI/2}"/>
+  <xacro:property name="steerMax" value="${PI/2}"/>
+  <xacro:property name="effortMax" value="15"/>
+  <xacro:property name="velocityMax" value="50" />
+
+  <xacro:property name="steerDamping" value="200" />
+  <xacro:property name="steerFriction" value="200" />
+  <xacro:property name="wheelDamping" value="0.001" />
+  <xacro:property name="wheelFriction" value="0.001" />
+
+
+  <!-- base link-->
+
+  <link name="base_link"> <!-- avoid mass errors-->
+
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.001"/>
+      <geometry>
+        <box size="0.01 0.01 0.01"/>
+      </geometry>
+    </visual>
+
+  </link>
+
+  <joint name="base_foot_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <!-- <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0" /> -->
+  </joint>
+
+  <link name="base_footprint">
+
+    <visual>
+      <geometry>
+         <box size="${baseLength} ${baseWidth} ${baseHeight}"/>
+      </geometry>
+      <origin rpy="0 0 0 " xyz="0 0 ${wheelRadius}"/>
+      <material name="white"/>
+    </visual>
+
+    <collision>
+      <geometry>
+         <box size="${baseLength} ${baseWidth} ${baseHeight}"/>
+      </geometry>
+      <origin rpy="0 0 0 " xyz="0 0 ${wheelRadius}"/>
+     </collision>
+
+     <inertial>
+        <origin rpy="0 0 0 " xyz="0 0 ${wheelRadius}"/>
+        <mass value="${baseMass}"/>
+         <box_inertia m="${baseMass}" x="${baseLength}" y="${baseWidth}" z="${baseHeight}"/>
+     </inertial>
+
+  </link>
+
+  <!-- rear wheels  -->
+  <rear_wheel lr="left" tY="-1"/>
+  <rear_wheel lr="right" tY="1"/>
+
+  <!-- front wheels  -->
+  <front_wheel lr ="left" tY="-1"/>
+  <front_wheel lr ="right" tY="1"/>
+
+
+
+</robot>
