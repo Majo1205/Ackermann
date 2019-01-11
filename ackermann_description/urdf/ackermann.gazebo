@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- HERE WE SPECIFY ALL THE GAZEBO TAGS INCLUDING: -->
+<!-- TRANSMISSIONS, PLUGINS, CONTROL (FROM ANOTHER FOLDER)-->
+
+<robot>
+
+  <!-- ros_control plugin (allow to put controls) -->
+  <!-- In addition to the transmission tags, a Gazebo plugin needs to be added to your URDF that actually parses the transmission tags and loads the appropriate hardware interfaces and controller manager-->
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/ackermann</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <legacyModeNS>false</legacyModeNS>
+    </plugin>
+  </gazebo>
+
+
+  <!-- wheels colors (to specify here for gazebo and link it in the xacro at the beginning) -->
+
+  <gazebo reference="rear_left_wheel_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="rear_right_wheel_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="front_left_wheel_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <gazebo reference="front_right_wheel_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- axis -->
+
+  <gazebo reference="front_left_steering_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="front_right_steering_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="rear_left_rot_joint">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="rear_right_rot_joint">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="front_left_rot_joint">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="front_right_rot_joint">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+<!-- custom plugin to save the current position -->
+
+  <gazebo>
+   <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <topicName>ground_truth</topicName>
+      <gaussianNoise>0.00</gaussianNoise>
+      <frameName>map</frameName>
+      <xyzOffsets>0 0 0</xyzOffsets>
+      <rpyOffsets>0 0 0</rpyOffsets>
+    </plugin>
+ </gazebo>
+
+
+</robot>
