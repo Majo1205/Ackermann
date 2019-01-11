@@ -6,13 +6,13 @@ View Ackermann model in Rviz
 ```
 it will diplay also all the controllers present in the model.
 
-# gazebo simulation
+## gazebo simulation
 
 Launch the robot in the origin of an empty world, together with the controllers
 ```bash
   roslaunch ackermann_description ackermann_gazebo.launch
 ```
-# Move the robot
+## move the robot
 
 After changed the desired set-point for the robot inside the code in
 ```bash
