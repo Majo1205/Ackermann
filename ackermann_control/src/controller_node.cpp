@@ -3,9 +3,9 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int8.h>
 
-// custom msg
-#include "ackermann_control/velocities.h"
-#include "ackermann_control/pose_msg.h" //EVENTUALLY USE A pose2d msg
+// custom msg (not used below)
+//#include "ackermann_control/velocities.h"
+//#include "ackermann_control/pose_msg.h" //EVENTUALLY USE A pose2d msg
 
 #include <tf/tf.h>
 #include <geometry_msgs/Vector3.h>
