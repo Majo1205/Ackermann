@@ -1,0 +1,35 @@
+ackermann:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  
+
+
+  # Position Controllers ---------------------------------------
+  front_right_steering_controller:
+    type: effort_controllers/JointPositionController
+    joint: front_right_steering_joint
+    pid: {p: 50, i: 0.01, d: 80}
+
+  front_left_steering_controller:
+    type: effort_controllers/JointPositionController
+    joint: front_left_steering_joint
+    pid: {p: 50, i: 0.01, d: 80}
+
+  # Velocity Controllers (don't put derivative, wheels start to spin on their own) ---------------------------------------
+  rear_left_wheel_controller:
+    type: effort_controllers/JointVelocityController
+    joint: rear_left_wheel_joint
+    pid: {p: 1.5, i: 10, d: 0, i_clamp: 10}
+  rear_right_wheel_controller:
+    type: effort_controllers/JointVelocityController
+    joint: rear_right_wheel_joint
+    pid: {p: 1.5, i: 10, d: 0, i_clamp: 10}
+  front_left_wheel_controller:
+    type: effort_controllers/JointVelocityController
+    joint: front_left_wheel_joint
+    pid: {p: 1.5, i: 10, d: 0, i_clamp: 10}
+  front_right_wheel_controller:
+    type: effort_controllers/JointVelocityController
+    joint: front_right_wheel_joint
+    pid: {p: 1.5, i: 10, d: 0, i_clamp: 10}
